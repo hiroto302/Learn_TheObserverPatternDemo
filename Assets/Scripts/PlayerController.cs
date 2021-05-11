@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     private bool projectileEnabled = true;
     private WaitForSeconds shieldTimeOut;
     private GameSceneController gameSceneController;
+    private ProjectileController lastProjectile;
 
     public event Action HitByEnemy;     // Delegate Type Action : ダメージを受けた時に発火させる
 
@@ -108,6 +109,9 @@ public class PlayerController : MonoBehaviour
             projectile.projectileSpeed = 4;
             projectile.projectileDirection = Vector2.up;
 
+            lastProjectile = projectile;
+
+            // Player が GameOver になった時、Player が Destroy され, 発射されたものがまだ画面外へ到達した時、参照するはずの Player が存在しないので error が起きないよに対処する
             projectile.ProjectileOutOfBounds += EnableProjectile;    // event の 追加
 
             DisableProjectile();
@@ -132,7 +136,12 @@ public class PlayerController : MonoBehaviour
         GameObject xp = Instantiate(expolsion, transform.position, Quaternion.identity);
         xp.transform.localScale = new Vector2(2, 2);
 
-        HitByEnemy();
+        if(HitByEnemy != null)
+            HitByEnemy();
+
+        lastProjectile.ProjectileOutOfBounds -= EnableProjectile;  // remove
+        gameSceneController.ScoreUpdateOnKill -= GameSceneController_ScoreUpdateOnKill;
+
         Destroy(gameObject);
     }
 

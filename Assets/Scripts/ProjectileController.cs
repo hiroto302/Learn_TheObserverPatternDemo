@@ -36,6 +36,13 @@ public class ProjectileController : MonoBehaviour
                 if (ProjectileOutOfBounds != null) // このように 参照されてるものがあるかチェックすることで拡張性を持たすことができる
                 {
                     ProjectileOutOfBounds();
+
+                    // event に格納されている メソッドの確認
+                    // var observers = ProjectileOutOfBounds.GetInvocationList();
+                    // foreach( var observer in observers)
+                    // {
+                    //     print(observer.Method);
+                    // }
                 }
             }
             Destroy(gameObject);
