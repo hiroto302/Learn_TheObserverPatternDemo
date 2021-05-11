@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using System;           // C# Actions are types in the System namespace
 
 public class PlayerController : MonoBehaviour
 {
@@ -15,6 +16,9 @@ public class PlayerController : MonoBehaviour
 
     private bool projectileEnabled = true;
     private WaitForSeconds shieldTimeOut;
+    private GameSceneController gameSceneController;
+
+    public event Action HitByEnemy;     // Delegate Type Action : ダメージを受けた時に発火させる
 
     #endregion
 
@@ -22,8 +26,18 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        gameSceneController = FindObjectOfType<GameSceneController>();
+        // event の追加 : ここでは ScoreUpdateOnKill に追加してるが, EnemyDestroyedHandlerクラスの EnemyDestroyed に追加した方が合理的であると思う
+        gameSceneController.ScoreUpdateOnKill += GameSceneController_ScoreUpdateOnKill;
+
         shieldTimeOut = new WaitForSeconds(shieldDuration);
         EnableShield();
+    }
+
+    // gameSceneController.ScoreUpdateOnKill の delegate に 追加するためにmethod引数があるだけ
+    private void GameSceneController_ScoreUpdateOnKill(int pointValue)
+    {
+        EnableProjectile();
     }
 
     #endregion
@@ -102,7 +116,10 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
+
     #region Damage
+
+
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -115,6 +132,7 @@ public class PlayerController : MonoBehaviour
         GameObject xp = Instantiate(expolsion, transform.position, Quaternion.identity);
         xp.transform.localScale = new Vector2(2, 2);
 
+        HitByEnemy();
         Destroy(gameObject);
     }
 

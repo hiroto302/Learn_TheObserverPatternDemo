@@ -1,9 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class GameSceneController : MonoBehaviour
 {
+    public event EnemyDestroyedHandler ScoreUpdateOnKill;
+    public event Action<int> LifeLost;
+
     #region Field Declarations
 
     [Header("Enemy & Power Prefabs")]
@@ -11,7 +15,7 @@ public class GameSceneController : MonoBehaviour
     [SerializeField] private EnemyController enemyPrefab;
     [SerializeField] private PlayerController playerShip;
     [SerializeField] private PowerupController[] powerUpPrefabs;
-	
+
 	[Header("Level Definitions")]
     [Space]
     public List<LevelDefinition> levels;
@@ -24,7 +28,7 @@ public class GameSceneController : MonoBehaviour
     public float shieldDuration = 3;
 
     private int totalPoints;
-    private int lives = 3;
+    private int lives = 3;  // プレイヤーのライフ
 
     private int currentLevelIndex = 0;
     private WaitForSeconds shipSpawnDelay = new WaitForSeconds(2);
@@ -70,6 +74,7 @@ public class GameSceneController : MonoBehaviour
 
     #region Spawning
 
+    // Player の 復活
     private IEnumerator SpawnShip(bool delayed)
     {
         if(delayed)
@@ -79,9 +84,28 @@ public class GameSceneController : MonoBehaviour
         ship.speed = playerSpeed;
         ship.shieldDuration = shieldDuration;
 
+        ship.HitByEnemy += Ship_HitByEnemy;  // event の追加
+
         yield return null;
     }
 
+    // PlayerController クラスの HitByEnemy が発火した時、行う処理
+    private void Ship_HitByEnemy()
+    {
+        lives--;
+
+        if (LifeLost != null)
+        {
+            LifeLost(lives);
+        }
+
+        if (lives > 0)
+        {
+            StartCoroutine(SpawnShip(true));
+        }
+    }
+
+    // 敵を生み出すメソッド
     private IEnumerator SpawnEnemies()
     {
         WaitForSeconds wait = new WaitForSeconds(currentLevel.enemySpawnDelay);
@@ -97,11 +121,24 @@ public class GameSceneController : MonoBehaviour
             enemy.speed = currentLevel.enemySpeed;
             enemy.shotdelayTime = currentLevel.enemyShotDelay;
             enemy.angerdelayTime = currentLevel.enemyAngerDelay;
- 
+
+            enemy.EnemyDestroyed += Enemy_EnemyDestroyed;  // enemy が破壊された時の event 追加
+
             yield return wait;
         }
     }
-    
+
+    private void Enemy_EnemyDestroyed(int pointValue)
+    {
+        // enemy が破壊された時に行う処理
+        totalPoints += pointValue;
+
+        if(ScoreUpdateOnKill != null)
+        {
+            ScoreUpdateOnKill(totalPoints); // event 発生
+        }
+    }
+
     private IEnumerator SpawnPowerUp()
     {
         while (true)

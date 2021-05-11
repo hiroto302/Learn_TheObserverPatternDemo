@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+public delegate void EnemyDestroyedHandler(int pointValue);  // delegate
 public class EnemyController : MonoBehaviour
 {
     #region Field Declarations
@@ -19,11 +20,12 @@ public class EnemyController : MonoBehaviour
     private WaitForSeconds shotDelay;
     private WaitForSeconds angerDelay;
     private float shotSpeedxN;
-    
+
     private Vector2 currentTarget;
     private SpriteRenderer spriteRenderer;
 
     #endregion
+    public event EnemyDestroyedHandler EnemyDestroyed;  // event
 
     #region Startup
 
@@ -67,10 +69,16 @@ public class EnemyController : MonoBehaviour
         Destroy(collision.gameObject);
 
         FindObjectOfType<PlayerController>().EnableProjectile();
+
         FindObjectOfType<HUDController>().UpdateScore(pointValue);
-        
+
         GameObject xPlosion = Instantiate(explosion, transform.position, Quaternion.identity);
         xPlosion.transform.localScale = new Vector2(2, 2);
+
+        if(EnemyDestroyed != null)
+        {
+            EnemyDestroyed(pointValue); // the event is fired when the enemy has destroyed
+        }
 
         Destroy(gameObject);
     }
