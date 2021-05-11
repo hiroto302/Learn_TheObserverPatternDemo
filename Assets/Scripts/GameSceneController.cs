@@ -157,6 +157,8 @@ public class GameSceneController : MonoBehaviour
 
             enemy.EnemyDestroyed += Enemy_EnemyDestroyed;  // enemy が破壊された時の event 追加
 
+            AddObserver(enemy);  // observer に 追加
+
             yield return wait;
         }
     }
@@ -178,7 +180,8 @@ public class GameSceneController : MonoBehaviour
         {
             int index = UnityEngine.Random.Range(0, powerUpPrefabs.Length);
             Vector2 spawnPosition = ScreenBounds.RandomTopPosition();
-            Instantiate(powerUpPrefabs[index], spawnPosition, Quaternion.identity);
+            PowerupController powerup =  Instantiate(powerUpPrefabs[index], spawnPosition, Quaternion.identity);
+            AddObserver(powerup);
             yield return new WaitForSeconds(UnityEngine.Random.Range(currentLevel.powerUpMinimumWait,currentLevel.powerUpMaximumWait));
         }
     }

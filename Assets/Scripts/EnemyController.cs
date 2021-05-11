@@ -2,7 +2,7 @@
 using UnityEngine;
 
 public delegate void EnemyDestroyedHandler(int pointValue);  // delegate
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, IEndGameObserver
 {
     #region Field Declarations
 
@@ -124,6 +124,11 @@ public class EnemyController : MonoBehaviour
         currentTarget = ScreenBounds.GetRandomPosition();
         shotDelay = new WaitForSeconds(shotdelayTime / 3);
         shotSpeed = shotSpeedxN;
+    }
+
+    public void Notify()
+    {
+        Destroy(gameObject);
     }
 
     #endregion
