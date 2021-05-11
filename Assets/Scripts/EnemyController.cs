@@ -80,6 +80,14 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
             EnemyDestroyed(pointValue); // the event is fired when the enemy has destroyed
         }
 
+        // Destroy(gameObject);
+        RemoveAndDestroy();
+    }
+
+    private void RemoveAndDestroy()
+    {
+        GameSceneController gameSceneController = FindObjectOfType<GameSceneController>();
+        gameSceneController.RemoveObserver(this);
         Destroy(gameObject);
     }
 

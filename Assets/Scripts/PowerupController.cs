@@ -24,7 +24,8 @@ public class PowerupController :MonoBehaviour, IEndGameObserver
 
         if (ScreenBounds.OutOfBounds(transform.position))
         {
-            Destroy(gameObject);
+            // Destroy(gameObject);
+            RemoveAndDestroy();
         }
     }
 
@@ -38,9 +39,21 @@ public class PowerupController :MonoBehaviour, IEndGameObserver
         if (powerType == PowerType.Shield)
         {
             PlayerController playerShip = collision.gameObject.GetComponent<PlayerController>();
-            playerShip.EnableShield();
+            if(playerShip != null)
+            {
+                playerShip.EnableShield();
+            }
         }
 
+        // Destroy(gameObject);
+        RemoveAndDestroy();
+    }
+
+    // 破壊された時、Observer が知らせた処理を実行する時、追加した処理を知らせる Observerが消えた時,参照するのを避けるために下記の処理を行う
+    private void RemoveAndDestroy()
+    {
+        GameSceneController gameSceneController = FindObjectOfType<GameSceneController>();
+        gameSceneController.RemoveObserver(this);
         Destroy(gameObject);
     }
 

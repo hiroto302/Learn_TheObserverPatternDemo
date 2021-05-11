@@ -52,7 +52,8 @@ public class GameSceneController : MonoBehaviour
     {
         foreach (IEndGameObserver observer in endGameObservers)
         {
-            observer.Notify();
+            // observer.Notify();
+            print(observer);
         }
     }
 
