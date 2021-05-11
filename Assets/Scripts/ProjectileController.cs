@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+public delegate void OutOfBoundsHandler();  // delegate
+
 public class ProjectileController : MonoBehaviour
 {
     #region Field Declarations
@@ -9,10 +11,10 @@ public class ProjectileController : MonoBehaviour
     public bool isPlayers;
 
     #endregion
+    public event OutOfBoundsHandler ProjectileOutOfBounds;  // event
 
     #region Movement
 
-    // Update is called once per frame
     void Update()
     {
         MoveProjectile();
@@ -24,6 +26,18 @@ public class ProjectileController : MonoBehaviour
 
         if (ScreenBounds.OutOfBounds(transform.position))
         {
+            if(isPlayers == true)
+            {
+                // 下記のような記述では, TightCoupling になるので、拡張性、Debug、unitTest、maintain しにくいので event を活用する
+
+                // PlayerController playerShip = FindObjectOfType<PlayerController>();
+                // playerShip.EnableProjectile();
+
+                if (ProjectileOutOfBounds != null) // このように 参照されてるものがあるかチェックすることで拡張性を持たすことができる
+                {
+                    ProjectileOutOfBounds();
+                }
+            }
             Destroy(gameObject);
         }
     }

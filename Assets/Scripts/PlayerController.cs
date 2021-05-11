@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
 
     private bool projectileEnabled = true;
     private WaitForSeconds shieldTimeOut;
-    
+
     #endregion
 
     #region Startup
@@ -64,30 +64,40 @@ public class PlayerController : MonoBehaviour
 
     #region Projectile Management
 
+    // 投射物の有効化
     public void EnableProjectile()
+    // private void EnableProjectile() : event を活用することで private にできる
     {
         projectileEnabled = true;
         availableBullet.SetActive(projectileEnabled);
     }
-
+    // 投射物の無効化
     public void DisableProjectile()
     {
         projectileEnabled = false;
         availableBullet.SetActive(projectileEnabled);
     }
 
+    // 投射物の発射
     private void FireProjectile()
     {
-        Vector2 spawnPosition = availableBullet.transform.position;
+        if (projectileEnabled)
+        {
+            Vector2 spawnPosition = availableBullet.transform.position;
 
-        ProjectileController projectile =
-            Instantiate(projectilePrefab, spawnPosition, Quaternion.AngleAxis(90, Vector3.forward));
+            ProjectileController projectile =
+                Instantiate(projectilePrefab, spawnPosition, Quaternion.AngleAxis(90, Vector3.forward));
 
-       projectile.gameObject.GetComponent<SpriteRenderer>().color = Color.green;
-        projectile.gameObject.layer = LayerMask.NameToLayer("PlayerProjectile");
-        projectile.isPlayers = true;
-        projectile.projectileSpeed = 4;
-        projectile.projectileDirection = Vector2.up;
+            projectile.gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+            projectile.gameObject.layer = LayerMask.NameToLayer("PlayerProjectile");
+            projectile.isPlayers = true;
+            projectile.projectileSpeed = 4;
+            projectile.projectileDirection = Vector2.up;
+
+            projectile.ProjectileOutOfBounds += EnableProjectile;    // event の 追加
+
+            DisableProjectile();
+        }
     }
 
     #endregion
