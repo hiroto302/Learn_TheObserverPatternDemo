@@ -11,7 +11,7 @@ public class ProjectileController : MonoBehaviour
     public bool isPlayers;
 
     #endregion
-    public event OutOfBoundsHandler ProjectileOutOfBounds;  // event
+    // public event OutOfBoundsHandler ProjectileOutOfBounds;  // event
 
     #region Movement
 
@@ -33,9 +33,9 @@ public class ProjectileController : MonoBehaviour
                 // PlayerController playerShip = FindObjectOfType<PlayerController>();
                 // playerShip.EnableProjectile();
 
-                if (ProjectileOutOfBounds != null) // このように 参照されてるものがあるかチェックすることで拡張性を持たすことができる
-                {
-                    ProjectileOutOfBounds();
+                // if (ProjectileOutOfBounds != null) // このように 参照されてるものがあるかチェックすることで拡張性を持たすことができる
+                // {
+                //     ProjectileOutOfBounds();
 
                     // event に格納されている メソッドの確認
                     // var observers = ProjectileOutOfBounds.GetInvocationList();
@@ -43,7 +43,9 @@ public class ProjectileController : MonoBehaviour
                     // {
                     //     print(observer.Method);
                     // }
-                }
+                // }
+
+                EventBroker.CallProjectileOutOfBounds();
             }
             Destroy(gameObject);
         }

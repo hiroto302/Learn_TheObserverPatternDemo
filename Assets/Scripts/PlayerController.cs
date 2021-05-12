@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour
     private bool projectileEnabled = true;
     private WaitForSeconds shieldTimeOut;
     private GameSceneController gameSceneController;
-    private ProjectileController lastProjectile;
+    // private ProjectileController lastProjectile;
 
     public event Action HitByEnemy;     // Delegate Type Action : ダメージを受けた時に発火させる
 
@@ -31,8 +31,16 @@ public class PlayerController : MonoBehaviour
         // event の追加 : ここでは ScoreUpdateOnKill に追加してるが, EnemyDestroyedHandlerクラスの EnemyDestroyed に追加した方が合理的であると思う
         gameSceneController.ScoreUpdateOnKill += GameSceneController_ScoreUpdateOnKill;
 
+        EventBroker.ProjectileOutOfBounds += EnableProjectile;
+
         shieldTimeOut = new WaitForSeconds(shieldDuration);
         EnableShield();
+    }
+
+    // Player が破壊された時実行
+    private void OnDisable()
+    {
+        EventBroker.ProjectileOutOfBounds -= EnableProjectile;
     }
 
     // gameSceneController.ScoreUpdateOnKill の delegate に 追加するためにmethod引数があるだけ
@@ -109,10 +117,10 @@ public class PlayerController : MonoBehaviour
             projectile.projectileSpeed = 4;
             projectile.projectileDirection = Vector2.up;
 
-            lastProjectile = projectile;
+            // lastProjectile = projectile;
 
             // Player が GameOver になった時、Player が Destroy され, 発射されたものがまだ画面外へ到達した時、参照するはずの Player が存在しないので error が起きないよに対処する
-            projectile.ProjectileOutOfBounds += EnableProjectile;    // event の 追加
+            // projectile.ProjectileOutOfBounds += EnableProjectile;    // event の 追加
 
             DisableProjectile();
         }
@@ -139,7 +147,7 @@ public class PlayerController : MonoBehaviour
         if(HitByEnemy != null)
             HitByEnemy();
 
-        lastProjectile.ProjectileOutOfBounds -= EnableProjectile;  // remove
+        // lastProjectile.ProjectileOutOfBounds -= EnableProjectile;  // remove
         gameSceneController.ScoreUpdateOnKill -= GameSceneController_ScoreUpdateOnKill;
 
         Destroy(gameObject);
